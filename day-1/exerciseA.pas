@@ -10,20 +10,15 @@ CONST
 VAR
   tfIn: TextFile;
   inputLine: string;
-  currentCalories: integer;
-  currentIndex: integer;
-  maxCalories: integer;
-  maxIndex: integer;
+  currentCalories: integer = 0;
+  currentIndex: integer = 0;
+  maxCalories: integer = 0;
+  maxIndex: integer = 0;
 
 PROCEDURE ReadAndFindMax;
 BEGIN
   // ClrScr;
   WriteLn ('Reading input file and finding elf with the most calories');
-
-  currentCalories := 0;
-  currentIndex := 0;
-  maxCalories := 0;
-  maxIndex := 0;
 
   AssignFile(tfIn, INPUT_FNAME);
 
