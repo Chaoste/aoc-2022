@@ -3,15 +3,9 @@ require "set"
 
 input_name = 'input.txt'
 sum = 0
-line = ''
-first_compartment = ''
-second_compartment = ''
-intersection = 0
-priority = 0
 
 File.foreach(input_name) do |input_line|
   line = input_line.strip
-  line_length = line.length
   first_compartment = line[0..line.length/2-1]
   second_compartment = line[line.length/2..]
   intersection = Set.new(first_compartment.chars) & Set.new(second_compartment.chars)
