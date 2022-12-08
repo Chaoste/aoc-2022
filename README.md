@@ -9,3 +9,4 @@ Missing: Perl, Kotlin, Scala, ArnoldC, Smalltalk, VBA, Go, node.js, Java, C/ C++
 - Day 5: Rust
 - Day 6: Dart
 - Day 7: Python
+- Day 8: Perl
