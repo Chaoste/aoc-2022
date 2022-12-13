@@ -1,6 +1,6 @@
 Challenge:
 
-Missing: Kotlin, Scala, ArnoldC, Smalltalk, VBA, node.js, C/ C++, C#, Objective C, Swift, Matlab, Bash, WebAssembly, Kotlin, Elixir, Clojure, PHP
+Missing: Kotlin, Scala, ArnoldC, Smalltalk, VBA, node.js, C/ C++, C#, Objective C, Swift, Matlab, Bash, WebAssembly, Kotlin, Elixir, Clojure
 
 - Day 1: Pascal
 - Day 2: Fortran
@@ -13,3 +13,4 @@ Missing: Kotlin, Scala, ArnoldC, Smalltalk, VBA, node.js, C/ C++, C#, Objective 
 - Day 9: R
 - Day 10: Go
 - Day 11: Java
+- Day 12: PHP
