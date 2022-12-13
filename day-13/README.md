@@ -12,5 +12,5 @@ mix compile
 ## Run
 
 ```
-mix run
+ mix run -r lib/exercise-a.exs
 ```
