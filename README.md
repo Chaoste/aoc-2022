@@ -14,3 +14,4 @@ Missing: Kotlin, Scala, ArnoldC, Smalltalk, VBA, node.js, C/ C++, C#, Objective 
 - Day 10: Go
 - Day 11: Java
 - Day 12: PHP
+- Day 13: Elixir / Erlang

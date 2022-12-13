@@ -1,0 +1,3 @@
+%{
+  "poison": {:git, "https://github.com/devinus/poison.git", "282188af948da8460029e5e37ecefbad496fddfd", [tag: "4.0.0"]},
+}
