@@ -16,5 +16,6 @@ Missing: Kotlin, Scala, ArnoldC, Smalltalk, VBA, node.js, Swift, Matlab, Bash, W
 - Day 12: PHP
 - Day 13: Elixir / Erlang
 - Day 14: C++
-- Day 15: Objective C
-- Day 16: C#
+- Day 15: C
+- Day 16: Objective C
+- Day 17: C#
