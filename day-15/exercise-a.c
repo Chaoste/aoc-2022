@@ -5,8 +5,8 @@
 #include <regex.h>
 
 #define CHARS_PER_LINE 256
-#define NUMBER_OF_LINES 14
-#define MAP_SIZE 60
+#define NUMBER_OF_LINES 32
+#define TARGET_ROW 2000000
 
 unsigned int read_file(char lines[NUMBER_OF_LINES][CHARS_PER_LINE]) {
   FILE *fptr = NULL; 
@@ -106,7 +106,6 @@ int main(void) {
   int beacons[NUMBER_OF_LINES][2];
   int ranges[NUMBER_OF_LINES][2];
   int range_count = 0;
-  int target_row = 10;
   int overlapping_items[NUMBER_OF_LINES*2]; // beacon or signal
   int overlapping_items_count = 0;
 
@@ -120,15 +119,15 @@ int main(void) {
   for(int i = 0; i < NUMBER_OF_LINES; ++i) {
     int* signal = signals[i];
     int* beacon = beacons[i];
-    if (beacon[1] == target_row && !contains_number(overlapping_items, overlapping_items_count, beacon[0])) {
+    if (beacon[1] == TARGET_ROW && !contains_number(overlapping_items, overlapping_items_count, beacon[0])) {
       overlapping_items[overlapping_items_count++] = beacon[0];
     }
-    if (signal[1] == target_row && !contains_number(overlapping_items, overlapping_items_count, signal[0])) {
+    if (signal[1] == TARGET_ROW && !contains_number(overlapping_items, overlapping_items_count, signal[0])) {
       overlapping_items[overlapping_items_count++] = signal[0];
     }
     int diff = abs(signal[0]-beacon[0]) + abs(signal[1]-beacon[1]);
     for(int k = -diff; k <= diff; ++k) {
-      if (signal[1]+k == target_row) {
+      if (signal[1]+k == TARGET_ROW) {
         int offset = diff - abs(k);
         int range_start = signal[0] - offset;
         int range_end = signal[0] + offset + 1;
@@ -149,7 +148,6 @@ int main(void) {
   final_ranges[0][1] = ranges[0][1];
   for(int i = 1; i < range_count; ++i) {
     int* range = ranges[i];
-    printf("Range: %d\n", range[0]);
     int* previous_range = final_ranges[final_range_count-1];
     if (previous_range[1] <= range[0]) {
       // Not overlapping, add the new range
@@ -167,6 +165,7 @@ int main(void) {
   int blocked_fields = 0;
   for(int i = 0; i < final_range_count; ++i) {
     int* range = final_ranges[i];
+    printf("Range: %d - %d\n", range[0], range[1]);
     int range_size = range[1] - range[0];
     blocked_fields = blocked_fields + range_size;
   }
