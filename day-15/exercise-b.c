@@ -3,13 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <regex.h>
+#include <sys/time.h>
 
 #define CHARS_PER_LINE 256
-#define NUMBER_OF_LINES 32 // 14, 21
-#define TARGET_ROW 2000000 // 10, 2000000
+#define NUMBER_OF_LINES 32 // 14, 32
+#define BOUNDARY 4000000 // 20, 4000000
 
 unsigned int read_file(char lines[NUMBER_OF_LINES][CHARS_PER_LINE]) {
-  FILE *fptr = NULL; 
+  FILE *fptr = NULL;
   int i = 0;
   fptr = fopen("input.txt", "r");
   while(fgets(lines[i], CHARS_PER_LINE, fptr)) {
@@ -100,76 +101,93 @@ int contains_number(int array[NUMBER_OF_LINES*2], int n, int value) {
   return isElementPresent;
 }
 
+long long timeInMilliseconds(void) {
+    struct timeval tv;
+
+    gettimeofday(&tv,NULL);
+    return (((long long)tv.tv_sec)*1000)+(tv.tv_usec/1000);
+}
+
+
 int main(void) {
   char lines[NUMBER_OF_LINES][CHARS_PER_LINE];
   int signals[NUMBER_OF_LINES][2];
   int beacons[NUMBER_OF_LINES][2];
-  int ranges[NUMBER_OF_LINES][2];
-  int range_count = 0;
-  int overlapping_items[NUMBER_OF_LINES*2]; // beacon or signal
-  int overlapping_items_count = 0;
-
-  puts("Read file");
+  int target_row = -1;
+  int target_col = -1;
+  long long lastTimestamp = timeInMilliseconds();
+  
   unsigned int n_lines = read_file(lines);
-
-  puts("Parse file");
   parse_file(lines, signals, beacons);
 
-  puts("Process signals");
-  for(int i = 0; i < NUMBER_OF_LINES; ++i) {
-    int* signal = signals[i];
-    int* beacon = beacons[i];
-    if (beacon[1] == TARGET_ROW && !contains_number(overlapping_items, overlapping_items_count, beacon[0])) {
-      overlapping_items[overlapping_items_count++] = beacon[0];
-    }
-    if (signal[1] == TARGET_ROW && !contains_number(overlapping_items, overlapping_items_count, signal[0])) {
-      overlapping_items[overlapping_items_count++] = signal[0];
-    }
-    int diff = abs(signal[0]-beacon[0]) + abs(signal[1]-beacon[1]);
-    for(int k = -diff; k <= diff; ++k) {
-      if (signal[1]+k == TARGET_ROW) {
+  for (int row = 0; row < BOUNDARY && target_row == -1; row++) {
+    int ranges[NUMBER_OF_LINES][2];
+    int range_count = 0;
+
+    for(int i = 0; i < NUMBER_OF_LINES; ++i) {
+      int* signal = signals[i];
+      int* beacon = beacons[i];
+      int diff = abs(signal[0]-beacon[0]) + abs(signal[1]-beacon[1]);
+      int k = row - signal[1];
+      if (k >= -diff && k <= diff) {
+        // The target row is within the range
         int offset = diff - abs(k);
         int range_start = signal[0] - offset;
         int range_end = signal[0] + offset + 1;
-        printf("start=%d end=%d\n", range_start, range_end);
+        // printf("start=%d end=%d\n", range_start, range_end);
         ranges[range_count][0] = range_start;
         ranges[range_count][1] = range_end;
         range_count++;
       }
     }
-  }
 
-  // Idea from https://www.geeksforgeeks.org/merging-intervals/
-  sort_by_start(ranges, range_count);
-  int final_ranges[NUMBER_OF_LINES*2][2];
-  int final_range_count = 1;
-  // Add the first range (with the lowest start index)
-  final_ranges[0][0] = ranges[0][0];
-  final_ranges[0][1] = ranges[0][1];
-  for(int i = 1; i < range_count; ++i) {
-    int* range = ranges[i];
-    int* previous_range = final_ranges[final_range_count-1];
-    if (previous_range[1] <= range[0]) {
-      // Not overlapping, add the new range
-      final_ranges[final_range_count][0] = range[0];
-      final_ranges[final_range_count][1] = range[1];
-      final_range_count++;
-    } else {
-      // Extend the existing range if the new end is greater
-      if (range[1] > final_ranges[final_range_count-1][1]) {
-        final_ranges[final_range_count-1][1] = range[1];
+    // Idea from https://www.geeksforgeeks.org/merging-intervals/
+    sort_by_start(ranges, range_count);
+    int final_ranges[NUMBER_OF_LINES*2][2];
+    int final_range_count = 1;
+    // Add the first range (with the lowest start index)
+    final_ranges[0][0] = ranges[0][0];
+    final_ranges[0][1] = ranges[0][1];
+    for(int i = 1; i < range_count; ++i) {
+      int* range = ranges[i];
+      int* previous_range = final_ranges[final_range_count-1];
+      if (previous_range[1] < range[0]) {
+        // Not overlapping, add the new range
+        final_ranges[final_range_count][0] = range[0];
+        final_ranges[final_range_count][1] = range[1];
+        final_range_count++;
+      } else {
+        // Extend the existing range if the new end is greater
+        if (range[1] > final_ranges[final_range_count-1][1]) {
+          final_ranges[final_range_count-1][1] = range[1];
+        }
+      }
+    }
+    
+    int blocked_fields = 0;
+    for(int i = 0; i < final_range_count; ++i) {
+      int* range = final_ranges[i];
+      // printf("Range for row %d: %d - %d\n", row, range[0], range[1]);
+      int range_size = range[1] - range[0];
+      blocked_fields = blocked_fields + range_size;
+      // if (range[0] )
+      if (range[0] > 0 || range[1] < BOUNDARY) {
+        target_row = row;
+        if (range[0] > 0) {
+          target_col = range[0] - 1;
+        } else {
+          target_col = range[1];
+        }
+        printf("FOUND IT! %d, %d\n", target_row, target_col);
+        break;
       }
     }
   }
-  
-  int blocked_fields = 0;
-  for(int i = 0; i < final_range_count; ++i) {
-    int* range = final_ranges[i];
-    printf("Range: %d - %d\n", range[0], range[1]);
-    int range_size = range[1] - range[0];
-    blocked_fields = blocked_fields + range_size;
-  }
 
-  printf("Solution: %d\n", blocked_fields - overlapping_items_count);
+  printf("Run time in ms: %lld \n", timeInMilliseconds() - lastTimestamp);
+  lastTimestamp = timeInMilliseconds();
+
+  long long tuning_frequency = ((long)target_col) * 4000000 + ((long)target_row);
+  printf("Solution: %d | %d ---> %lld\n", target_row, target_col, tuning_frequency);
   return 0;
 }
